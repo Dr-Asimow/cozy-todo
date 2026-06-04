@@ -21,9 +21,9 @@ body {
   background: linear-gradient(135deg, #fdf0f3 0%, #f3f0fb 50%, #eef6f1 100%);
   min-height: 100vh;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  padding: 20px;
+  padding: 48px 20px;
   color: var(--text);
 }
 

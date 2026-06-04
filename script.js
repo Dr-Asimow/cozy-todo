@@ -193,19 +193,37 @@ function showEmpty(message) {
   list.appendChild(li);
 }
 
+// İçerik değişirken listeyi eski yükseklikten yeni yüksekliğe yumuşakça taşır.
+// Üst kenar sabit kalır, liste yalnızca aşağıya doğru açılır/kapanır.
+function animateHeight(mutate) {
+  const start = list.offsetHeight;
+  mutate();
+  const end = list.offsetHeight;
+  if (start === end) return;
+  list.style.overflow = "hidden";
+  const anim = list.animate(
+    [{ height: `${start}px` }, { height: `${end}px` }],
+    { duration: 320, easing: "cubic-bezier(.22,.61,.36,1)" }
+  );
+  anim.onfinish = anim.oncancel = () => {
+    list.style.overflow = "";
+  };
+}
+
 function render() {
-  list.innerHTML = "";
-  const visible = todos.filter((t) => {
-    if (filter === "active") return !t.done;
-    if (filter === "done") return t.done;
-    return true;
-  });
+  animateHeight(() => {
+    list.innerHTML = "";
+    const visible = todos.filter((t) => {
+      if (filter === "active") return !t.done;
+      if (filter === "done") return t.done;
+      return true;
+    });
 
-  if (visible.length === 0) {
-    showEmpty(filter === "done" ? "Henüz biten görev yok 🌱" : "Liste tertemiz, harikasın! ✨");
-  }
+    if (visible.length === 0) {
+      showEmpty(filter === "done" ? "Henüz biten görev yok 🌱" : "Liste tertemiz, harikasın! ✨");
+    }
 
-  visible.forEach((todo) => {
+    visible.forEach((todo) => {
     const li = document.createElement("li");
     li.className = "todo-item" + (todo.done ? " done" : "");
 
@@ -223,8 +241,9 @@ function render() {
     del.innerHTML = "🗑";
     del.addEventListener("click", () => remove(todo.id));
 
-    li.append(check, text, del);
-    list.appendChild(li);
+      li.append(check, text, del);
+      list.appendChild(li);
+    });
   });
 
   const remaining = todos.filter((t) => !t.done).length;
