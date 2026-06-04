@@ -148,6 +148,155 @@ body {
   color: var(--text-soft);
 }
 
+/* --- Pomodoro --- */
+.pomodoro {
+  background: #fff5f7;
+  border: 2px solid #f4e2e4;
+  border-radius: 20px;
+  padding: 18px 18px 20px;
+  margin-bottom: 22px;
+  text-align: center;
+  transition: background 0.4s, border-color 0.4s;
+}
+
+body[data-pomo="short"] .pomodoro,
+body[data-pomo="long"] .pomodoro {
+  background: #eef6f0;
+  border-color: #d8ebdd;
+}
+
+.pomo-modes {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.pomo-mode {
+  flex: 1;
+  border: none;
+  background: #fbeef0;
+  color: var(--text-soft);
+  padding: 8px 0;
+  border-radius: 10px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.pomo-mode:hover {
+  background: #f6e4e7;
+}
+
+.pomo-mode.active {
+  background: var(--primary);
+  color: #fff;
+}
+
+body[data-pomo="short"] .pomo-mode.active,
+body[data-pomo="long"] .pomo-mode.active {
+  background: var(--accent-deep);
+}
+
+.pomo-time {
+  font-size: 3.4rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.pomo-round {
+  font-size: 0.82rem;
+  color: var(--text-soft);
+  margin: 2px 0 14px;
+}
+
+.pomo-controls {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.pomo-btn {
+  border: none;
+  border-radius: 12px;
+  padding: 11px 20px;
+  font-size: 0.92rem;
+  font-weight: 600;
+  cursor: pointer;
+  background: #f1e3da;
+  color: var(--text);
+  transition: background 0.2s, transform 0.1s;
+}
+
+.pomo-btn:hover {
+  background: #ecd9cf;
+}
+
+.pomo-btn:active {
+  transform: scale(0.96);
+}
+
+.pomo-btn.primary {
+  background: var(--primary);
+  color: #fff;
+  min-width: 110px;
+}
+
+.pomo-btn.primary:hover {
+  background: var(--primary-deep);
+}
+
+body[data-pomo="short"] .pomo-btn.primary,
+body[data-pomo="long"] .pomo-btn.primary {
+  background: var(--accent-deep);
+}
+
+body[data-pomo="short"] .pomo-btn.primary:hover,
+body[data-pomo="long"] .pomo-btn.primary:hover {
+  background: #7aa882;
+}
+
+.pomo-btn.ghost {
+  background: transparent;
+  font-size: 1.1rem;
+  padding: 11px 14px;
+}
+
+.pomo-settings {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px dashed #ecdcd5;
+}
+
+.pomo-settings label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.74rem;
+  color: var(--text-soft);
+  text-align: left;
+}
+
+.pomo-settings input {
+  border: 2px solid #f1e3da;
+  background: #fffdfb;
+  border-radius: 10px;
+  padding: 8px 10px;
+  font-size: 0.95rem;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.pomo-settings input:focus {
+  border-color: var(--primary);
+}
+
 .todo-form {
   display: flex;
   gap: 10px;

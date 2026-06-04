@@ -320,3 +320,153 @@ if (session?.access_token) {
 } else {
   showAuth();
 }
+
+// =================== Pomodoro zamanlayıcı ===================
+const POMO_KEY = "cozy-pomodoro";
+const pomoDefaults = { work: 25, short: 5, long: 15, every: 4 };
+const pomoMax = { work: 180, short: 60, long: 120, every: 12 };
+const pomoLabels = { work: "çalışma", short: "kısa mola", long: "uzun mola" };
+
+let pomoSettings = { ...pomoDefaults, ...(JSON.parse(localStorage.getItem(POMO_KEY) || "null") || {}) };
+let pomoMode = "work";
+let pomoRemaining = pomoSettings.work * 60;
+let pomoRunning = false;
+let pomoTick = null;
+let pomoWorkDone = 0; // tamamlanan çalışma turu sayısı
+let pomoAudio = null;
+
+const pomoTimeEl = document.getElementById("pomo-time");
+const pomoRoundEl = document.getElementById("pomo-round");
+const pomoToggleBtn = document.getElementById("pomo-toggle");
+const pomoResetBtn = document.getElementById("pomo-reset");
+const pomoSettingsToggle = document.getElementById("pomo-settings-toggle");
+const pomoSettingsForm = document.getElementById("pomo-settings");
+const pomoModeBtns = document.querySelectorAll(".pomo-mode");
+const pomoInputs = {
+  work: document.getElementById("set-work"),
+  short: document.getElementById("set-short"),
+  long: document.getElementById("set-long"),
+  every: document.getElementById("set-every"),
+};
+
+const pomoDuration = (mode) => pomoSettings[mode] * 60;
+
+function fmtTime(s) {
+  const m = String(Math.floor(s / 60)).padStart(2, "0");
+  const sec = String(s % 60).padStart(2, "0");
+  return `${m}:${sec}`;
+}
+
+function pomoRender() {
+  pomoTimeEl.textContent = fmtTime(pomoRemaining);
+  pomoToggleBtn.textContent = pomoRunning ? "Duraklat" : "Başlat";
+  const turn = pomoWorkDone + (pomoMode === "work" ? 1 : 0);
+  pomoRoundEl.textContent = `${turn}. tur • ${pomoLabels[pomoMode]}`;
+  document.body.dataset.pomo = pomoMode;
+  pomoModeBtns.forEach((b) => b.classList.toggle("active", b.dataset.mode === pomoMode));
+  document.title = pomoRunning
+    ? `${fmtTime(pomoRemaining)} • ${pomoLabels[pomoMode]}`
+    : "🌷 Cozy Todo";
+}
+
+function stopTick() {
+  if (pomoTick) clearInterval(pomoTick);
+  pomoTick = null;
+}
+
+function startPomo() {
+  if (pomoRunning) return;
+  pomoRunning = true;
+  pomoTick = setInterval(() => {
+    pomoRemaining -= 1;
+    if (pomoRemaining <= 0) onPomoComplete();
+    else pomoRender();
+  }, 1000);
+  pomoRender();
+}
+
+function pausePomo() {
+  pomoRunning = false;
+  stopTick();
+  pomoRender();
+}
+
+function setPomoMode(mode, autostart = false) {
+  pomoMode = mode;
+  pomoRemaining = pomoDuration(mode);
+  pomoRunning = false;
+  stopTick();
+  pomoRender();
+  if (autostart) startPomo();
+}
+
+function onPomoComplete() {
+  stopTick();
+  pomoRunning = false;
+  pomoDing();
+  let next;
+  if (pomoMode === "work") {
+    pomoWorkDone += 1;
+    next = pomoWorkDone % pomoSettings.every === 0 ? "long" : "short";
+  } else {
+    next = "work";
+  }
+  // Süre bitince sonraki moda geçip otomatik başlat
+  setPomoMode(next, true);
+}
+
+// Mola/çalışma bitişinde kısa bir "ding" sesi (harici dosya gerektirmez)
+function pomoDing() {
+  try {
+    pomoAudio = pomoAudio || new (window.AudioContext || window.webkitAudioContext)();
+    const t = pomoAudio.currentTime;
+    const osc = pomoAudio.createOscillator();
+    const gain = pomoAudio.createGain();
+    osc.connect(gain);
+    gain.connect(pomoAudio.destination);
+    osc.type = "sine";
+    osc.frequency.value = pomoMode === "work" ? 880 : 660;
+    gain.gain.setValueAtTime(0.0001, t);
+    gain.gain.exponentialRampToValueAtTime(0.3, t + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.7);
+    osc.start(t);
+    osc.stop(t + 0.7);
+  } catch (e) {
+    /* ses desteklenmiyorsa sessizce geç */
+  }
+}
+
+// Kontroller
+pomoToggleBtn.addEventListener("click", () => (pomoRunning ? pausePomo() : startPomo()));
+pomoResetBtn.addEventListener("click", () => setPomoMode(pomoMode));
+pomoModeBtns.forEach((b) => b.addEventListener("click", () => setPomoMode(b.dataset.mode)));
+pomoSettingsToggle.addEventListener("click", () => {
+  pomoSettingsForm.hidden = !pomoSettingsForm.hidden;
+});
+// Çıkışta zamanlayıcıyı durdur
+logoutBtn.addEventListener("click", pausePomo);
+
+// Ayar girdileri
+function fillPomoInputs() {
+  pomoInputs.work.value = pomoSettings.work;
+  pomoInputs.short.value = pomoSettings.short;
+  pomoInputs.long.value = pomoSettings.long;
+  pomoInputs.every.value = pomoSettings.every;
+}
+
+Object.entries(pomoInputs).forEach(([key, el]) => {
+  el.addEventListener("change", () => {
+    const v = Math.max(1, Math.min(parseInt(el.value, 10) || pomoDefaults[key], pomoMax[key]));
+    pomoSettings[key] = v;
+    el.value = v;
+    localStorage.setItem(POMO_KEY, JSON.stringify(pomoSettings));
+    // Çalışmıyorsa mevcut modun süresini yeni değere güncelle
+    if (!pomoRunning && key === pomoMode) {
+      pomoRemaining = pomoDuration(pomoMode);
+    }
+    pomoRender();
+  });
+});
+
+fillPomoInputs();
+setPomoMode("work");

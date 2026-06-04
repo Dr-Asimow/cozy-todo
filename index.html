@@ -38,6 +38,36 @@
       <p class="subtitle">Bugün kendine iyi davran ☕</p>
     </header>
 
+    <!-- Pomodoro zamanlayıcı -->
+    <section class="pomodoro" id="pomodoro">
+      <div class="pomo-modes">
+        <button type="button" class="pomo-mode active" data-mode="work">Çalışma</button>
+        <button type="button" class="pomo-mode" data-mode="short">Kısa Mola</button>
+        <button type="button" class="pomo-mode" data-mode="long">Uzun Mola</button>
+      </div>
+      <div class="pomo-time" id="pomo-time">25:00</div>
+      <div class="pomo-round" id="pomo-round">1. tur • çalışma</div>
+      <div class="pomo-controls">
+        <button type="button" id="pomo-toggle" class="pomo-btn primary">Başlat</button>
+        <button type="button" id="pomo-reset" class="pomo-btn">Sıfırla</button>
+        <button type="button" id="pomo-settings-toggle" class="pomo-btn ghost" aria-label="Ayarlar" title="Ayarlar">⚙</button>
+      </div>
+      <form class="pomo-settings" id="pomo-settings" hidden>
+        <label>Çalışma (dk)
+          <input type="number" id="set-work" min="1" max="180" />
+        </label>
+        <label>Kısa mola (dk)
+          <input type="number" id="set-short" min="1" max="60" />
+        </label>
+        <label>Uzun mola (dk)
+          <input type="number" id="set-long" min="1" max="120" />
+        </label>
+        <label>Kaç turda bir uzun mola
+          <input type="number" id="set-every" min="1" max="12" />
+        </label>
+      </form>
+    </section>
+
     <form id="todo-form" class="todo-form">
       <input type="text" id="todo-input" placeholder="Ne yapmak istersin?" autocomplete="off" />
       <button type="submit" aria-label="Ekle">＋</button>
