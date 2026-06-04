@@ -131,6 +131,155 @@ body {
   color: var(--text-soft);
 }
 
+/* --- Profil --- */
+.profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #fff5f7;
+  border: 2px solid #f4e2e4;
+  border-radius: 18px;
+  padding: 12px 14px;
+  margin-bottom: 18px;
+}
+
+.avatar {
+  width: 46px;
+  height: 46px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background-color: var(--primary);
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: 700;
+  font-size: 1.1rem;
+  text-transform: uppercase;
+}
+
+.profile-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  text-align: left;
+}
+
+.profile-name {
+  font-weight: 700;
+  font-size: 1rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.profile-email {
+  font-size: 0.78rem;
+  color: var(--text-soft);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.profile-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-end;
+}
+
+/* Profil düzenleme paneli */
+.profile-edit {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: #fffaf6;
+  border: 2px solid #f4e2e4;
+  border-radius: 18px;
+  padding: 16px;
+  margin-bottom: 18px;
+  text-align: left;
+}
+
+.avatar-edit {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.avatar-lg {
+  width: 64px;
+  height: 64px;
+  font-size: 1.5rem;
+}
+
+.avatar-upload-btn {
+  background: #f1e3da;
+  color: var(--text);
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 9px 14px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.avatar-upload-btn:hover {
+  background: #ecd9cf;
+}
+
+.profile-edit .field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.78rem;
+  color: var(--text-soft);
+}
+
+.profile-edit .field input {
+  border: 2px solid #f1e3da;
+  background: #fffdfb;
+  border-radius: 12px;
+  padding: 11px 14px;
+  font-size: 0.95rem;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.profile-edit .field input:focus {
+  border-color: var(--primary);
+}
+
+.profile-msg {
+  font-size: 0.82rem;
+  text-align: center;
+  border-radius: 12px;
+  padding: 9px 12px;
+}
+
+.profile-msg.error {
+  color: #c9737d;
+  background: #fbe9eb;
+}
+
+.profile-msg.success {
+  color: var(--accent-deep);
+  background: #eef6f0;
+}
+
+.profile-edit-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.profile-edit-actions .pomo-btn {
+  flex: 1;
+}
+
 .app-header {
   text-align: center;
   margin-bottom: 24px;

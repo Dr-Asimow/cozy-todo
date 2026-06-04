@@ -105,8 +105,22 @@ const authSubmit = document.getElementById("auth-submit");
 const authSubtitle = document.getElementById("auth-subtitle");
 const authSwitchText = document.getElementById("auth-switch-text");
 const authToggle = document.getElementById("auth-toggle");
-const userEmail = document.getElementById("user-email");
 const logoutBtn = document.getElementById("logout-btn");
+
+// Profil elemanları
+const profileAvatar = document.getElementById("profile-avatar");
+const profileName = document.getElementById("profile-name");
+const profileEmail = document.getElementById("profile-email");
+const profileEditBtn = document.getElementById("profile-edit-btn");
+const profileEditForm = document.getElementById("profile-edit");
+const profileCancelBtn = document.getElementById("profile-cancel");
+const profileMsg = document.getElementById("profile-msg");
+const avatarPreview = document.getElementById("avatar-preview");
+const avatarInput = document.getElementById("avatar-input");
+const editName = document.getElementById("edit-name");
+const editPassword = document.getElementById("edit-password");
+const editPassword2 = document.getElementById("edit-password2");
+const profileSaveBtn = document.getElementById("profile-save");
 
 const form = document.getElementById("todo-form");
 const input = document.getElementById("todo-input");
@@ -181,9 +195,154 @@ function showAuth() {
 async function enterApp() {
   authView.hidden = true;
   appView.hidden = false;
-  userEmail.textContent = session.user?.email || "";
+  renderProfile();
   await load();
 }
+
+// =================== Profil ===================
+function getMeta() {
+  return session?.user?.user_metadata || {};
+}
+
+function avatarInitial() {
+  const meta = getMeta();
+  const base = meta.display_name || session?.user?.email || "?";
+  return base.trim().charAt(0) || "?";
+}
+
+// Avatar div'ini ya görselle ya da baş harfle doldur
+function paintAvatar(el, url) {
+  if (url) {
+    el.style.backgroundImage = `url("${url}")`;
+    el.textContent = "";
+  } else {
+    el.style.backgroundImage = "";
+    el.textContent = avatarInitial();
+  }
+}
+
+function renderProfile() {
+  const meta = getMeta();
+  profileName.textContent = meta.display_name || "İsimsiz kullanıcı";
+  profileEmail.textContent = session?.user?.email || "";
+  paintAvatar(profileAvatar, meta.avatar_url);
+}
+
+function showProfileMsg(text, type) {
+  profileMsg.textContent = text;
+  profileMsg.className = "profile-msg " + type;
+  profileMsg.hidden = false;
+}
+
+let pendingAvatarFile = null;
+
+function openProfileEdit() {
+  const meta = getMeta();
+  editName.value = meta.display_name || "";
+  editPassword.value = "";
+  editPassword2.value = "";
+  pendingAvatarFile = null;
+  profileMsg.hidden = true;
+  paintAvatar(avatarPreview, meta.avatar_url);
+  profileEditForm.hidden = false;
+  profileEditBtn.hidden = true;
+}
+
+function closeProfileEdit() {
+  profileEditForm.hidden = true;
+  profileEditBtn.hidden = false;
+}
+
+profileEditBtn.addEventListener("click", openProfileEdit);
+profileCancelBtn.addEventListener("click", closeProfileEdit);
+
+// Görsel seçilince yerel önizleme göster (yükleme kaydet'te yapılır)
+avatarInput.addEventListener("change", () => {
+  const file = avatarInput.files[0];
+  if (!file) return;
+  pendingAvatarFile = file;
+  const reader = new FileReader();
+  reader.onload = () => paintAvatar(avatarPreview, reader.result);
+  reader.readAsDataURL(file);
+});
+
+// Avatarı kullanıcının kendi klasörüne yükle, public URL döndür
+async function uploadAvatar(file) {
+  const ext = (file.name.split(".").pop() || "png").toLowerCase();
+  const path = `${session.user.id}/avatar_${Date.now()}.${ext}`;
+  const res = await fetch(`${SUPABASE_URL}/storage/v1/object/avatars/${path}`, {
+    method: "POST",
+    headers: {
+      apikey: SUPABASE_ANON_KEY,
+      Authorization: `Bearer ${session.access_token}`,
+      "Content-Type": file.type || "image/png",
+      "x-upsert": "true",
+    },
+    body: file,
+  });
+  if (!res.ok) throw new Error("Görsel yüklenemedi");
+  return `${SUPABASE_URL}/storage/v1/object/public/avatars/${path}`;
+}
+
+// GoTrue ile kullanıcıyı güncelle (isim, avatar, şifre)
+async function updateUser(payload) {
+  const res = await fetch(`${AUTH_URL}/user`, {
+    method: "PUT",
+    headers: {
+      apikey: SUPABASE_ANON_KEY,
+      Authorization: `Bearer ${session.access_token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.error_description || data.msg || data.message || "Güncellenemedi");
+  }
+  return data;
+}
+
+profileEditForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  profileMsg.hidden = true;
+  const name = editName.value.trim();
+  const pass = editPassword.value;
+  const pass2 = editPassword2.value;
+
+  if (pass || pass2) {
+    if (pass.length < 6) return showProfileMsg("Şifre en az 6 karakter olmalı.", "error");
+    if (pass !== pass2) return showProfileMsg("Şifreler eşleşmiyor.", "error");
+  }
+
+  profileSaveBtn.disabled = true;
+  profileSaveBtn.textContent = "Kaydediliyor…";
+  try {
+    const meta = getMeta();
+    let avatarUrl = meta.avatar_url;
+    if (pendingAvatarFile) {
+      avatarUrl = await uploadAvatar(pendingAvatarFile);
+    }
+
+    const payload = { data: { display_name: name, avatar_url: avatarUrl || null } };
+    if (pass) payload.password = pass;
+
+    const updated = await updateUser(payload);
+    session.user = updated; // güncel kullanıcı bilgisini sakla
+    saveSession(session);
+
+    renderProfile();
+    showProfileMsg("Profil güncellendi ✓", "success");
+    pendingAvatarFile = null;
+    editPassword.value = "";
+    editPassword2.value = "";
+    setTimeout(closeProfileEdit, 900);
+  } catch (err) {
+    showProfileMsg(err.message, "error");
+  } finally {
+    profileSaveBtn.disabled = false;
+    profileSaveBtn.textContent = "Kaydet";
+  }
+});
 
 // ---- Todo UI ----
 function showEmpty(message) {
