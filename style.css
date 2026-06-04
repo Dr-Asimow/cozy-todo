@@ -1,0 +1,229 @@
+:root {
+  --bg: #fdf6f0;
+  --card: #fffaf6;
+  --primary: #f6c1c7;
+  --primary-deep: #e89aa4;
+  --accent: #b8d8be;
+  --accent-deep: #8cba94;
+  --text: #6b5e57;
+  --text-soft: #a99c93;
+  --shadow: rgba(208, 175, 160, 0.25);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Segoe UI", "Quicksand", system-ui, sans-serif;
+  background: linear-gradient(135deg, #fdf0f3 0%, #f3f0fb 50%, #eef6f1 100%);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  color: var(--text);
+}
+
+.app {
+  width: 100%;
+  max-width: 440px;
+  background: var(--card);
+  border-radius: 28px;
+  padding: 32px 28px;
+  box-shadow: 0 20px 50px var(--shadow);
+}
+
+.app-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.app-header h1 {
+  font-size: 1.7rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.subtitle {
+  margin-top: 6px;
+  font-size: 0.9rem;
+  color: var(--text-soft);
+}
+
+.todo-form {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+#todo-input {
+  flex: 1;
+  border: 2px solid #f1e3da;
+  background: #fffdfb;
+  border-radius: 16px;
+  padding: 14px 18px;
+  font-size: 1rem;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+#todo-input::placeholder {
+  color: #c9bcb3;
+}
+
+#todo-input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px rgba(246, 193, 199, 0.25);
+}
+
+.todo-form button {
+  border: none;
+  background: var(--primary);
+  color: #fff;
+  width: 52px;
+  border-radius: 16px;
+  font-size: 1.6rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.todo-form button:hover {
+  background: var(--primary-deep);
+}
+
+.todo-form button:active {
+  transform: scale(0.94);
+}
+
+.filters {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.filter-btn {
+  flex: 1;
+  border: none;
+  background: #f5ece6;
+  color: var(--text-soft);
+  padding: 9px 0;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.filter-btn:hover {
+  background: #efe2da;
+}
+
+.filter-btn.active {
+  background: var(--primary);
+  color: #fff;
+}
+
+.todo-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 8px;
+  min-height: 60px;
+}
+
+.todo-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #fffdfb;
+  border: 2px solid #f3e7df;
+  border-radius: 16px;
+  padding: 13px 16px;
+  animation: pop 0.25s ease;
+}
+
+@keyframes pop {
+  from { opacity: 0; transform: translateY(-6px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.todo-item .check {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid var(--accent-deep);
+  background: transparent;
+  cursor: pointer;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  color: #fff;
+  transition: background 0.2s;
+}
+
+.todo-item.done .check {
+  background: var(--accent-deep);
+}
+
+.todo-item .text {
+  flex: 1;
+  font-size: 0.98rem;
+  word-break: break-word;
+}
+
+.todo-item.done .text {
+  text-decoration: line-through;
+  color: var(--text-soft);
+}
+
+.todo-item .delete {
+  border: none;
+  background: transparent;
+  color: #d8a7ad;
+  font-size: 1.2rem;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.2s, transform 0.1s;
+}
+
+.todo-item .delete:hover {
+  opacity: 1;
+  transform: scale(1.15);
+}
+
+.empty {
+  text-align: center;
+  color: var(--text-soft);
+  font-size: 0.9rem;
+  padding: 20px 0;
+}
+
+.app-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 16px;
+  font-size: 0.82rem;
+  color: var(--text-soft);
+}
+
+.clear-btn {
+  border: none;
+  background: transparent;
+  color: var(--primary-deep);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.clear-btn:hover {
+  text-decoration: underline;
+}

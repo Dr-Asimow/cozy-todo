@@ -1,0 +1,7 @@
+# Claude Code yerel ayarları (hassas token içerebilir)
+.claude/
+
+# Bağımlılıklar / sistem
+node_modules/
+.DS_Store
+Thumbs.db

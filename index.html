@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🌷 Cozy Todo</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="app-header">
+      <h1>🌷 Yapılacaklar</h1>
+      <p class="subtitle">Bugün kendine iyi davran ☕</p>
+    </header>
+
+    <form id="todo-form" class="todo-form">
+      <input
+        type="text"
+        id="todo-input"
+        placeholder="Ne yapmak istersin?"
+        autocomplete="off"
+      />
+      <button type="submit" aria-label="Ekle">＋</button>
+    </form>
+
+    <div class="filters">
+      <button class="filter-btn active" data-filter="all">Tümü</button>
+      <button class="filter-btn" data-filter="active">Aktif</button>
+      <button class="filter-btn" data-filter="done">Bitenler</button>
+    </div>
+
+    <ul id="todo-list" class="todo-list"></ul>
+
+    <footer class="app-footer">
+      <span id="counter">0 görev</span>
+      <button id="clear-done" class="clear-btn">Bitenleri temizle</button>
+    </footer>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
