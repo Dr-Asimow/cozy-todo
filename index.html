@@ -28,8 +28,10 @@
   </div>
 
   <!-- Todo uygulaması -->
-  <div class="app" id="app-view" hidden>
-    <header class="app-header">
+  <div id="app-view" class="board" hidden>
+    <!-- Sütun 1: Profil -->
+    <section class="app column">
+      <header class="app-header"><h1>👤 Profil</h1></header>
       <!-- Profil -->
       <div class="profile" id="profile">
         <div class="avatar" id="profile-avatar"></div>
@@ -67,13 +69,13 @@
           <button type="button" class="pomo-btn" id="profile-cancel">Vazgeç</button>
         </div>
       </form>
+    </section>
 
-      <h1>🌷 Yapılacaklar</h1>
-      <p class="subtitle">Bugün kendine iyi davran ☕</p>
-    </header>
-
-    <!-- Pomodoro zamanlayıcı -->
-    <section class="pomodoro" id="pomodoro">
+    <!-- Sütun 2: Pomodoro -->
+    <section class="app column">
+      <header class="app-header"><h1>🍅 Pomodoro</h1></header>
+      <!-- Pomodoro zamanlayıcı -->
+      <section class="pomodoro" id="pomodoro">
       <div class="pomo-modes">
         <button type="button" class="pomo-mode active" data-mode="work">Çalışma</button>
         <button type="button" class="pomo-mode" data-mode="short">Kısa Mola</button>
@@ -100,9 +102,17 @@
           <input type="number" id="set-every" min="1" max="12" />
         </label>
       </form>
+      </section>
     </section>
 
-    <form id="todo-form" class="todo-form">
+    <!-- Sütun 3: Yapılacaklar -->
+    <section class="app column">
+      <header class="app-header">
+        <h1>🌷 Yapılacaklar</h1>
+        <p class="subtitle">Bugün kendine iyi davran ☕</p>
+      </header>
+
+      <form id="todo-form" class="todo-form">
       <input type="text" id="todo-input" placeholder="Ne yapmak istersin?" autocomplete="off" />
       <button type="submit" aria-label="Ekle">＋</button>
     </form>
@@ -118,7 +128,8 @@
     <footer class="app-footer">
       <span id="counter">0 görev</span>
       <button id="clear-done" class="clear-btn">Bitenleri temizle</button>
-    </footer>
+      </footer>
+    </section>
   </div>
 
   <script src="script.js"></script>

@@ -36,6 +36,30 @@ body {
   box-shadow: 0 20px 50px var(--shadow);
 }
 
+/* 3 sütunlu yerleşim: Profil | Pomodoro | Yapılacaklar */
+.board {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 22px;
+  width: 100%;
+  max-width: 1160px;
+}
+
+.board > .column {
+  flex: 1 1 320px;
+  max-width: 360px;
+}
+
+/* Dar ekranlarda sütunlar alt alta dizilir */
+@media (max-width: 760px) {
+  .board > .column {
+    flex-basis: 100%;
+    max-width: 440px;
+  }
+}
+
 /* --- Giriş / Kayıt ekranı --- */
 .auth-form {
   display: flex;
@@ -303,7 +327,6 @@ body {
   border: 2px solid #f4e2e4;
   border-radius: 20px;
   padding: 18px 18px 20px;
-  margin-bottom: 22px;
   text-align: center;
   transition: background 0.4s, border-color 0.4s;
 }
