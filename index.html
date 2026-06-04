@@ -7,19 +7,39 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="app">
+  <!-- Giriş / Kayıt ekranı -->
+  <div class="app auth-card" id="auth-view" hidden>
     <header class="app-header">
+      <h1>🌷 Cozy Todo</h1>
+      <p class="subtitle" id="auth-subtitle">Hesabına giriş yap ☕</p>
+    </header>
+
+    <form id="auth-form" class="auth-form">
+      <input type="email" id="email" placeholder="E-posta" autocomplete="email" required />
+      <input type="password" id="password" placeholder="Şifre (en az 6 karakter)" autocomplete="current-password" minlength="6" required />
+      <p class="auth-error" id="auth-error" hidden></p>
+      <button type="submit" id="auth-submit">Giriş yap</button>
+    </form>
+
+    <p class="auth-switch">
+      <span id="auth-switch-text">Hesabın yok mu?</span>
+      <button type="button" id="auth-toggle" class="link-btn">Kayıt ol</button>
+    </p>
+  </div>
+
+  <!-- Todo uygulaması -->
+  <div class="app" id="app-view" hidden>
+    <header class="app-header">
+      <div class="user-bar">
+        <span class="user-email" id="user-email"></span>
+        <button id="logout-btn" class="link-btn">Çıkış</button>
+      </div>
       <h1>🌷 Yapılacaklar</h1>
       <p class="subtitle">Bugün kendine iyi davran ☕</p>
     </header>
 
     <form id="todo-form" class="todo-form">
-      <input
-        type="text"
-        id="todo-input"
-        placeholder="Ne yapmak istersin?"
-        autocomplete="off"
-      />
+      <input type="text" id="todo-input" placeholder="Ne yapmak istersin?" autocomplete="off" />
       <button type="submit" aria-label="Ekle">＋</button>
     </form>
 
