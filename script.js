@@ -87,8 +87,8 @@ async function api(path = "", options = {}, retried = false) {
 }
 
 const fetchTodos = () => api("?select=*&order=created_at.desc", { method: "GET" });
-const createTodo = (text) =>
-  api("", { method: "POST", headers: { Prefer: "return=representation" }, body: JSON.stringify({ text }) });
+const createTodo = (text, difficulty) =>
+  api("", { method: "POST", headers: { Prefer: "return=representation" }, body: JSON.stringify({ text, difficulty }) });
 const updateTodo = (id, patch) =>
   api(`?id=eq.${id}`, { method: "PATCH", headers: { Prefer: "return=representation" }, body: JSON.stringify(patch) });
 const deleteTodo = (id) => api(`?id=eq.${id}`, { method: "DELETE" });
@@ -112,15 +112,28 @@ const profileAvatar = document.getElementById("profile-avatar");
 const profileName = document.getElementById("profile-name");
 const profileEmail = document.getElementById("profile-email");
 const profileEditBtn = document.getElementById("profile-edit-btn");
-const profileEditForm = document.getElementById("profile-edit");
-const profileCancelBtn = document.getElementById("profile-cancel");
-const profileMsg = document.getElementById("profile-msg");
-const avatarPreview = document.getElementById("avatar-preview");
 const avatarInput = document.getElementById("avatar-input");
-const editName = document.getElementById("edit-name");
-const editPassword = document.getElementById("edit-password");
-const editPassword2 = document.getElementById("edit-password2");
-const profileSaveBtn = document.getElementById("profile-save");
+const avatarStatus = document.getElementById("avatar-status");
+
+// Level & XP elemanları
+const levelBadge = document.getElementById("level-badge");
+const xpText = document.getElementById("xp-text");
+const xpFill = document.getElementById("xp-fill");
+const xpPop = document.getElementById("xp-pop");
+
+// Ayarlar sayfası elemanları
+const settingsView = document.getElementById("settings-view");
+const settingsForm = document.getElementById("settings-form");
+const setName = document.getElementById("set-name");
+const setPassword = document.getElementById("set-password");
+const setPassword2 = document.getElementById("set-password2");
+const settingsMsg = document.getElementById("settings-msg");
+const settingsSaveBtn = document.getElementById("settings-save");
+const settingsBackBtn = document.getElementById("settings-back");
+
+// Zorluk seçici
+const diffSelect = document.getElementById("diff-select");
+let selectedDiff = "medium";
 
 const form = document.getElementById("todo-form");
 const input = document.getElementById("todo-input");
@@ -178,7 +191,8 @@ authForm.addEventListener("submit", async (e) => {
   }
 });
 
-logoutBtn.addEventListener("click", () => {
+logoutBtn.addEventListener("click", async () => {
+  await persistXp(true).catch(() => {}); // kalan XP'yi kaydet
   clearSession();
   todos = [];
   showAuth();
@@ -187,6 +201,7 @@ logoutBtn.addEventListener("click", () => {
 // ---- Görünüm geçişleri ----
 function showAuth() {
   appView.hidden = true;
+  settingsView.hidden = true;
   authView.hidden = false;
   authForm.reset();
   setMode("login");
@@ -194,8 +209,10 @@ function showAuth() {
 
 async function enterApp() {
   authView.hidden = true;
+  settingsView.hidden = true;
   appView.hidden = false;
   renderProfile();
+  initXp();
   await load();
 }
 
@@ -228,42 +245,137 @@ function renderProfile() {
   paintAvatar(profileAvatar, meta.avatar_url);
 }
 
-function showProfileMsg(text, type) {
-  profileMsg.textContent = text;
-  profileMsg.className = "profile-msg " + type;
-  profileMsg.hidden = false;
+// ---- Level & XP ----
+const XP_REWARD = { easy: 5, medium: 10, hard: 20 };
+const POMO_XP = 25;
+const MAX_LEVEL = 100;
+
+// Bir sonraki seviyeye geçmek için gereken XP — başta az, gittikçe artar
+function xpToNext(level) {
+  return Math.round(20 * Math.pow(level, 1.3));
 }
 
-let pendingAvatarFile = null;
-
-function openProfileEdit() {
-  const meta = getMeta();
-  editName.value = meta.display_name || "";
-  editPassword.value = "";
-  editPassword2.value = "";
-  pendingAvatarFile = null;
-  profileMsg.hidden = true;
-  paintAvatar(avatarPreview, meta.avatar_url);
-  profileEditForm.hidden = false;
-  profileEditBtn.hidden = true;
+function levelInfo(xp) {
+  let level = 1;
+  let remaining = xp;
+  while (level < MAX_LEVEL && remaining >= xpToNext(level)) {
+    remaining -= xpToNext(level);
+    level += 1;
+  }
+  return { level, inLevel: remaining, need: level >= MAX_LEVEL ? 0 : xpToNext(level) };
 }
 
-function closeProfileEdit() {
-  profileEditForm.hidden = true;
-  profileEditBtn.hidden = false;
+let totalXp = 0;
+let lastLevel = 1;
+
+function initXp() {
+  totalXp = Number(getMeta().xp) || 0;
+  lastLevel = levelInfo(totalXp).level;
+  renderLevel(false);
 }
 
-profileEditBtn.addEventListener("click", openProfileEdit);
-profileCancelBtn.addEventListener("click", closeProfileEdit);
+function renderLevel(animate = true) {
+  const { level, inLevel, need } = levelInfo(totalXp);
+  levelBadge.textContent = "Lv " + level;
+  xpText.textContent = level >= MAX_LEVEL ? "MAX 🌟" : `${inLevel} / ${need} XP`;
+  const pct = level >= MAX_LEVEL ? 100 : Math.round((inLevel / need) * 100);
+  if (animate) {
+    xpFill.style.width = pct + "%";
+  } else {
+    // ilk yüklemede geçişsiz ayarla
+    const prev = xpFill.style.transition;
+    xpFill.style.transition = "none";
+    xpFill.style.width = pct + "%";
+    void xpFill.offsetWidth;
+    xpFill.style.transition = prev;
+  }
+  if (animate && level > lastLevel) {
+    levelBadge.classList.add("bump");
+    setTimeout(() => levelBadge.classList.remove("bump"), 350);
+    pomoDing(); // level atlama sesi
+  }
+  lastLevel = level;
+}
 
-// Görsel seçilince yerel önizleme göster (yükleme kaydet'te yapılır)
-avatarInput.addEventListener("change", () => {
+let xpSaveTimer = null;
+function persistXp(immediate = false) {
+  clearTimeout(xpSaveTimer);
+  const save = async () => {
+    try {
+      const updated = await updateUser({ data: { xp: totalXp } });
+      session.user = updated;
+      saveSession(session);
+    } catch (e) {
+      console.error("XP kaydedilemedi", e);
+    }
+  };
+  if (immediate) return save();
+  xpSaveTimer = setTimeout(save, 800);
+}
+
+function showXpPop(delta) {
+  xpPop.textContent = (delta > 0 ? "+" : "") + delta + " XP";
+  xpPop.classList.toggle("neg", delta < 0);
+  xpPop.classList.remove("show");
+  void xpPop.offsetWidth; // animasyonu yeniden tetikle
+  xpPop.classList.add("show");
+}
+
+function addXp(delta) {
+  if (!delta) return;
+  totalXp = Math.max(0, totalXp + delta);
+  showXpPop(delta);
+  renderLevel(true);
+  persistXp();
+}
+
+// ---- Ayarlar sayfası ----
+function showSettingsMsg(text, type) {
+  settingsMsg.textContent = text;
+  settingsMsg.className = "profile-msg " + type;
+  settingsMsg.hidden = false;
+}
+
+function openSettings() {
+  setName.value = getMeta().display_name || "";
+  setPassword.value = "";
+  setPassword2.value = "";
+  settingsMsg.hidden = true;
+  appView.hidden = true;
+  settingsView.hidden = false;
+}
+
+function closeSettings() {
+  settingsView.hidden = true;
+  appView.hidden = false;
+}
+
+profileEditBtn.addEventListener("click", openSettings);
+settingsBackBtn.addEventListener("click", closeSettings);
+
+// Avatar: seçilince anında yükle ve profile uygula
+avatarInput.addEventListener("change", async () => {
   const file = avatarInput.files[0];
   if (!file) return;
-  pendingAvatarFile = file;
   const reader = new FileReader();
-  reader.onload = () => paintAvatar(avatarPreview, reader.result);
+  reader.onload = () => paintAvatar(profileAvatar, reader.result);
   reader.readAsDataURL(file);
+  avatarStatus.hidden = false;
+  avatarStatus.textContent = "Yükleniyor…";
+  try {
+    const url = await uploadAvatar(file);
+    const updated = await updateUser({ data: { avatar_url: url } });
+    session.user = updated;
+    saveSession(session);
+    paintAvatar(profileAvatar, url);
+    avatarStatus.textContent = "Güncellendi ✓";
+    setTimeout(() => (avatarStatus.hidden = true), 1500);
+  } catch (err) {
+    avatarStatus.textContent = "Yüklenemedi 😢";
+    paintAvatar(profileAvatar, getMeta().avatar_url);
+  } finally {
+    avatarInput.value = "";
+  }
 });
 
 // Avatarı kullanıcının kendi klasörüne yükle, public URL döndür
@@ -302,28 +414,22 @@ async function updateUser(payload) {
   return data;
 }
 
-profileEditForm.addEventListener("submit", async (e) => {
+settingsForm.addEventListener("submit", async (e) => {
   e.preventDefault();
-  profileMsg.hidden = true;
-  const name = editName.value.trim();
-  const pass = editPassword.value;
-  const pass2 = editPassword2.value;
+  settingsMsg.hidden = true;
+  const name = setName.value.trim();
+  const pass = setPassword.value;
+  const pass2 = setPassword2.value;
 
   if (pass || pass2) {
-    if (pass.length < 6) return showProfileMsg("Şifre en az 6 karakter olmalı.", "error");
-    if (pass !== pass2) return showProfileMsg("Şifreler eşleşmiyor.", "error");
+    if (pass.length < 6) return showSettingsMsg("Şifre en az 6 karakter olmalı.", "error");
+    if (pass !== pass2) return showSettingsMsg("Şifreler eşleşmiyor.", "error");
   }
 
-  profileSaveBtn.disabled = true;
-  profileSaveBtn.textContent = "Kaydediliyor…";
+  settingsSaveBtn.disabled = true;
+  settingsSaveBtn.textContent = "Kaydediliyor…";
   try {
-    const meta = getMeta();
-    let avatarUrl = meta.avatar_url;
-    if (pendingAvatarFile) {
-      avatarUrl = await uploadAvatar(pendingAvatarFile);
-    }
-
-    const payload = { data: { display_name: name, avatar_url: avatarUrl || null } };
+    const payload = { data: { display_name: name } };
     if (pass) payload.password = pass;
 
     const updated = await updateUser(payload);
@@ -331,16 +437,15 @@ profileEditForm.addEventListener("submit", async (e) => {
     saveSession(session);
 
     renderProfile();
-    showProfileMsg("Profil güncellendi ✓", "success");
-    pendingAvatarFile = null;
-    editPassword.value = "";
-    editPassword2.value = "";
-    setTimeout(closeProfileEdit, 900);
+    showSettingsMsg("Kaydedildi ✓", "success");
+    setPassword.value = "";
+    setPassword2.value = "";
+    setTimeout(closeSettings, 900);
   } catch (err) {
-    showProfileMsg(err.message, "error");
+    showSettingsMsg(err.message, "error");
   } finally {
-    profileSaveBtn.disabled = false;
-    profileSaveBtn.textContent = "Kaydet";
+    settingsSaveBtn.disabled = false;
+    settingsSaveBtn.textContent = "Kaydet";
   }
 });
 
@@ -391,6 +496,11 @@ function render() {
     check.innerHTML = todo.done ? "✓" : "";
     check.addEventListener("click", () => toggle(todo));
 
+    const diff = todo.difficulty || "medium";
+    const chip = document.createElement("span");
+    chip.className = "diff-chip " + diff;
+    chip.title = { easy: "Kolay", medium: "Orta", hard: "Zor" }[diff];
+
     const text = document.createElement("span");
     text.className = "text";
     text.textContent = todo.text;
@@ -400,7 +510,7 @@ function render() {
     del.innerHTML = "🗑";
     del.addEventListener("click", () => remove(todo.id));
 
-      li.append(check, text, del);
+      li.append(check, chip, text, del);
       list.appendChild(li);
     });
   });
@@ -424,7 +534,7 @@ async function load() {
 }
 
 async function add(text) {
-  const [created] = await createTodo(text);
+  const [created] = await createTodo(text, selectedDiff);
   todos.unshift(created);
   render();
 }
@@ -433,6 +543,9 @@ async function toggle(todo) {
   const [updated] = await updateTodo(todo.id, { done: !todo.done });
   todos = todos.map((t) => (t.id === updated.id ? updated : t));
   render();
+  // Tamamlayınca XP kazan, geri alınca geri ver
+  const reward = XP_REWARD[updated.difficulty || "medium"];
+  addXp(updated.done ? reward : -reward);
 }
 
 async function remove(id) {
@@ -440,6 +553,14 @@ async function remove(id) {
   todos = todos.filter((t) => t.id !== id);
   render();
 }
+
+// Zorluk seçici
+diffSelect.addEventListener("click", (e) => {
+  const btn = e.target.closest(".diff-btn");
+  if (!btn) return;
+  selectedDiff = btn.dataset.diff;
+  diffSelect.querySelectorAll(".diff-btn").forEach((b) => b.classList.toggle("active", b === btn));
+});
 
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -566,6 +687,7 @@ function onPomoComplete() {
   let next;
   if (pomoMode === "work") {
     pomoWorkDone += 1;
+    addXp(POMO_XP); // tamamlanan çalışma seansı için XP
     next = pomoWorkDone % pomoSettings.every === 0 ? "long" : "short";
   } else {
     next = "work";

@@ -32,43 +32,33 @@
     <!-- Sütun 1: Profil -->
     <section class="app column">
       <header class="app-header"><h1>👤 Profil</h1></header>
-      <!-- Profil -->
-      <div class="profile" id="profile">
-        <div class="avatar" id="profile-avatar"></div>
-        <div class="profile-info">
-          <span class="profile-name" id="profile-name">Kullanıcı</span>
-          <span class="profile-email" id="profile-email"></span>
-        </div>
-        <div class="profile-actions">
-          <button type="button" id="profile-edit-btn" class="link-btn">Düzenle</button>
-          <button type="button" id="logout-btn" class="link-btn">Çıkış</button>
-        </div>
+
+      <div class="profile profile-stack">
+        <div class="avatar avatar-lg" id="profile-avatar"></div>
+        <span class="profile-name" id="profile-name">Kullanıcı</span>
+        <span class="profile-email" id="profile-email"></span>
       </div>
 
-      <!-- Profil düzenleme paneli -->
-      <form class="profile-edit" id="profile-edit" hidden>
-        <div class="avatar-edit">
-          <div class="avatar avatar-lg" id="avatar-preview"></div>
-          <label class="avatar-upload-btn">
-            Görsel seç
-            <input type="file" id="avatar-input" accept="image/*" hidden />
-          </label>
+      <label class="avatar-upload-btn block">
+        📷 Profil resmi seç
+        <input type="file" id="avatar-input" accept="image/*" hidden />
+      </label>
+      <p class="avatar-status" id="avatar-status" hidden></p>
+
+      <!-- Level & XP -->
+      <div class="level-box" id="level-box">
+        <div class="level-row">
+          <span class="level-badge" id="level-badge">Lv 1</span>
+          <span class="xp-text" id="xp-text">0 / 20 XP</span>
         </div>
-        <label class="field">İsim
-          <input type="text" id="edit-name" placeholder="Görünen ad" maxlength="40" />
-        </label>
-        <label class="field">Yeni şifre
-          <input type="password" id="edit-password" placeholder="Boş bırakırsan değişmez" autocomplete="new-password" minlength="6" />
-        </label>
-        <label class="field">Yeni şifre (tekrar)
-          <input type="password" id="edit-password2" placeholder="Şifreyi tekrar gir" autocomplete="new-password" />
-        </label>
-        <p class="profile-msg" id="profile-msg" hidden></p>
-        <div class="profile-edit-actions">
-          <button type="submit" class="pomo-btn primary" id="profile-save">Kaydet</button>
-          <button type="button" class="pomo-btn" id="profile-cancel">Vazgeç</button>
-        </div>
-      </form>
+        <div class="xp-bar"><div class="xp-fill" id="xp-fill"></div></div>
+        <span class="xp-pop" id="xp-pop"></span>
+      </div>
+
+      <div class="profile-actions-row">
+        <button type="button" id="profile-edit-btn" class="link-btn">⚙ Ayarlar</button>
+        <button type="button" id="logout-btn" class="link-btn">Çıkış</button>
+      </div>
     </section>
 
     <!-- Sütun 2: Pomodoro -->
@@ -113,9 +103,15 @@
       </header>
 
       <form id="todo-form" class="todo-form">
-      <input type="text" id="todo-input" placeholder="Ne yapmak istersin?" autocomplete="off" />
-      <button type="submit" aria-label="Ekle">＋</button>
-    </form>
+        <input type="text" id="todo-input" placeholder="Ne yapmak istersin?" autocomplete="off" />
+        <button type="submit" aria-label="Ekle">＋</button>
+      </form>
+
+      <div class="diff-select" id="diff-select">
+        <button type="button" class="diff-btn easy" data-diff="easy">Kolay <small>+5</small></button>
+        <button type="button" class="diff-btn medium active" data-diff="medium">Orta <small>+10</small></button>
+        <button type="button" class="diff-btn hard" data-diff="hard">Zor <small>+20</small></button>
+      </div>
 
     <div class="filters">
       <button class="filter-btn active" data-filter="all">Tümü</button>
@@ -130,6 +126,30 @@
       <button id="clear-done" class="clear-btn">Bitenleri temizle</button>
       </footer>
     </section>
+  </div>
+
+  <!-- Ayarlar sayfası -->
+  <div class="app auth-card" id="settings-view" hidden>
+    <header class="app-header">
+      <h1>⚙ Ayarlar</h1>
+      <p class="subtitle">Hesap bilgilerini düzenle</p>
+    </header>
+    <form id="settings-form" class="auth-form">
+      <label class="field">Görünen ad
+        <input type="text" id="set-name" placeholder="Görünen ad" maxlength="40" />
+      </label>
+      <label class="field">Yeni şifre
+        <input type="password" id="set-password" placeholder="Boş bırakırsan değişmez" autocomplete="new-password" minlength="6" />
+      </label>
+      <label class="field">Yeni şifre (tekrar)
+        <input type="password" id="set-password2" placeholder="Şifreyi tekrar gir" autocomplete="new-password" />
+      </label>
+      <p class="profile-msg" id="settings-msg" hidden></p>
+      <button type="submit" id="settings-save">Kaydet</button>
+    </form>
+    <p class="auth-switch">
+      <button type="button" id="settings-back" class="link-btn">← Geri dön</button>
+    </p>
   </div>
 
   <script src="script.js"></script>

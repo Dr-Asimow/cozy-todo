@@ -16,6 +16,12 @@
   box-sizing: border-box;
 }
 
+/* hidden attribute'u display kurallarını her zaman ezsin
+   (.board { display:flex } gibi kurallar gizlemeyi bozmasın) */
+[hidden] {
+  display: none !important;
+}
+
 body {
   font-family: "Segoe UI", "Quicksand", system-ui, sans-serif;
   background: linear-gradient(135deg, #fdf0f3 0%, #f3f0fb 50%, #eef6f1 100%);
@@ -219,6 +225,167 @@ body {
   flex-direction: column;
   gap: 4px;
   align-items: flex-end;
+}
+
+/* Dikey profil (sütun) */
+.profile-stack {
+  flex-direction: column;
+  text-align: center;
+  gap: 6px;
+}
+
+.profile-stack .profile-name {
+  font-size: 1.05rem;
+  white-space: normal;
+}
+
+.avatar-upload-btn.block {
+  display: block;
+  text-align: center;
+  margin: 14px 0 2px;
+}
+
+.avatar-status {
+  font-size: 0.78rem;
+  color: var(--text-soft);
+  text-align: center;
+  margin-top: 6px;
+}
+
+/* Level & XP */
+.level-box {
+  position: relative;
+  background: #fff5f7;
+  border: 2px solid #f4e2e4;
+  border-radius: 16px;
+  padding: 14px;
+  margin: 16px 0;
+}
+
+.level-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.level-badge {
+  background: var(--primary);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.85rem;
+  padding: 3px 10px;
+  border-radius: 10px;
+  transition: transform 0.3s ease;
+}
+
+.level-badge.bump {
+  transform: scale(1.3);
+}
+
+.xp-text {
+  font-size: 0.8rem;
+  color: var(--text-soft);
+}
+
+.xp-bar {
+  height: 12px;
+  background: #f3e2e5;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.xp-fill {
+  height: 100%;
+  width: 0;
+  border-radius: 8px;
+  background: linear-gradient(90deg, #f6c1c7, #e89aa4);
+  transition: width 0.6s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.xp-pop {
+  position: absolute;
+  right: 14px;
+  top: 6px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--accent-deep);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.xp-pop.neg {
+  color: #c9737d;
+}
+
+.xp-pop.show {
+  animation: xpfloat 1s ease-out;
+}
+
+@keyframes xpfloat {
+  0% { opacity: 0; transform: translateY(6px); }
+  20% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-20px); }
+}
+
+.profile-actions-row {
+  display: flex;
+  justify-content: space-between;
+}
+
+/* Zorluk seçici */
+.diff-select {
+  display: flex;
+  gap: 8px;
+  margin: -6px 0 18px;
+}
+
+.diff-btn {
+  flex: 1;
+  border: 2px solid #f1e3da;
+  background: #fffdfb;
+  color: var(--text-soft);
+  padding: 7px 0;
+  border-radius: 12px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.diff-btn small {
+  opacity: 0.7;
+}
+
+.diff-btn.active {
+  color: #fff;
+  border-color: transparent;
+}
+
+.diff-btn.easy.active { background: #8cba94; }
+.diff-btn.medium.active { background: #e0a85c; }
+.diff-btn.hard.active { background: #e08a8a; }
+
+/* Görev zorluk noktası */
+.diff-chip {
+  flex-shrink: 0;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+}
+
+.diff-chip.easy { background: #8cba94; }
+.diff-chip.medium { background: #e0a85c; }
+.diff-chip.hard { background: #e08a8a; }
+
+/* Ayarlar sayfasındaki alan etiketleri */
+.auth-form .field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.78rem;
+  color: var(--text-soft);
+  text-align: left;
 }
 
 /* Profil düzenleme paneli */
