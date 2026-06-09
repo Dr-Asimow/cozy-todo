@@ -1,7 +1,7 @@
 // --- Supabase yapılandırması ---
-const SUPABASE_URL = "https://mlhlgefowuuskxooxird.supabase.co";
+const SUPABASE_URL = "https://ciclapwevcdmikdecqww.supabase.co";
 const SUPABASE_ANON_KEY =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1saGxnZWZvd3V1c2t4b294aXJkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA1OTA1NzcsImV4cCI6MjA5NjE2NjU3N30.JZM2Al1egj9n2z7xqyo0psI-ow0vfkIS7GZLSowhYi0";
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNpY2xhcHdldmNkbWlrZGVjcXd3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwMjU2MTYsImV4cCI6MjA5NjYwMTYxNn0.0HIlZHgR3p35a4y2R2H66AnPIry6h2MsHXSlhXC91Cg";
 const AUTH_URL = `${SUPABASE_URL}/auth/v1`;
 const REST = `${SUPABASE_URL}/rest/v1/todos`;
 const SESSION_KEY = "cozy-session";
